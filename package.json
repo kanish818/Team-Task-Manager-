@@ -1,25 +1,35 @@
 {
-  "name": "ethara",
-  "version": "1.0.0",
-  "description": "Full-stack team task manager",
+  "name": "task-manager",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
-    "build": "npm run build --prefix backend && npm run build --prefix frontend",
-    "backend:dev": "npm run dev --prefix backend",
-    "frontend:dev": "npm run dev --prefix frontend"
+    "dev": "next dev",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "lint": "eslint",
+    "postinstall": "prisma generate"
   },
-  "keywords": [
-    "task-manager",
-    "railway",
-    "vercel",
-    "react",
-    "express"
-  ],
-  "author": "",
-  "license": "MIT",
-  "type": "commonjs",
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "prisma": "^7.8.0",
+    "bcrypt": "^6.0.0",
+    "next": "16.2.4",
+    "next-auth": "^4.24.14",
+    "pg": "^8.20.0",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "zod": "^4.4.2"
+  },
   "devDependencies": {
-    "concurrently": "^9.2.1"
+    "@tailwindcss/postcss": "^4",
+    "@types/bcrypt": "^6.0.0",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.4",
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }

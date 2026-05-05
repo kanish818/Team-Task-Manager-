@@ -1,0 +1,156 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  MEMBER
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum ActivityEntity {
+  PROJECT
+  TASK
+  COMMENT
+  MEMBER
+}
+
+enum ActivityAction {
+  CREATED
+  UPDATED
+  DELETED
+  ASSIGNED
+  STATUS_CHANGED
+  PRIORITY_CHANGED
+  COMMENT_ADDED
+  MEMBER_ADDED
+  MEMBER_REMOVED
+}
+
+model User {
+  id           String          @id @default(cuid())
+  name         String?
+  email        String          @unique
+  passwordHash String
+  role         Role            @default(MEMBER)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  projectsCreated Project[]     @relation("ProjectCreated")
+  tasksCreated    Task[]        @relation("TaskCreated")
+  tasksAssigned   Task[]        @relation("TaskAssigned")
+  memberships     ProjectMember[]
+  activityLogs   ActivityLog[]
+  comments       TaskComment[]
+}
+
+model Project {
+  id           String           @id @default(cuid())
+  title        String
+  description  String?
+  createdById  String
+  createdBy    User             @relation("ProjectCreated", fields: [createdById], references: [id], onDelete: Cascade)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  members      ProjectMember[]
+  tasks        Task[]
+  activityLogs ActivityLog[]
+
+  @@index([title])
+}
+
+model ProjectMember {
+  id         String   @id @default(cuid())
+  projectId  String
+  userId     String
+  createdAt  DateTime @default(now())
+
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+  @@index([projectId])
+  @@index([userId])
+}
+
+model Task {
+  id           String     @id @default(cuid())
+  title        String
+  description  String?
+  status       TaskStatus @default(TODO)
+  priority     Priority   @default(MEDIUM)
+  dueDate      DateTime?
+  projectId    String
+  createdById  String
+  assignedToId String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  project      Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdBy    User      @relation("TaskCreated", fields: [createdById], references: [id], onDelete: Cascade)
+  assignedTo   User?     @relation("TaskAssigned", fields: [assignedToId], references: [id], onDelete: Cascade)
+  comments     TaskComment[]
+  activityLogs ActivityLog[]
+
+  @@index([projectId])
+  @@index([assignedToId])
+  @@index([status])
+  @@index([priority])
+  @@index([dueDate])
+  @@index([createdAt, id])
+  @@index([title])
+}
+
+model TaskComment {
+  id               String   @id @default(cuid())
+  taskId           String
+  authorId         String
+  body             String
+  mentionedUserIds String[]
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  task   Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+  @@index([authorId])
+  @@index([createdAt, id])
+}
+
+model ActivityLog {
+  id         String         @id @default(cuid())
+  entity     ActivityEntity
+  action     ActivityAction
+  projectId  String
+  taskId     String?
+  actorId    String
+  message    String
+  metadata   Json?
+  createdAt  DateTime       @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  task    Task?   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  actor   User    @relation(fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, createdAt])
+  @@index([taskId])
+  @@index([actorId])
+  @@index([createdAt, id])
+}
