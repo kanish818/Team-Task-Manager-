@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { formatDate } from "@/lib/format";
 
@@ -50,7 +50,7 @@ export default function ProjectDetailClient({ projectId, role }: ProjectDetailCl
   const [taskError, setTaskError] = useState<string | null>(null);
   const [taskSaving, setTaskSaving] = useState(false);
 
-  const loadProject = async () => {
+  const loadProject = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -74,11 +74,14 @@ export default function ProjectDetailClient({ projectId, role }: ProjectDetailCl
     } finally {
       setLoading(false);
     }
-  };
+  }, [projectId]);
 
   useEffect(() => {
-    void loadProject();
-  }, [projectId]);
+    const timer = window.setTimeout(() => {
+      void loadProject();
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [loadProject]);
 
   const handleAddMember = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
