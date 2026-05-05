@@ -1,0 +1,25 @@
+{
+  "name": "ethara",
+  "version": "1.0.0",
+  "description": "Full-stack team task manager",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
+    "build": "npm run build --prefix backend && npm run build --prefix frontend",
+    "backend:dev": "npm run dev --prefix backend",
+    "frontend:dev": "npm run dev --prefix frontend"
+  },
+  "keywords": [
+    "task-manager",
+    "railway",
+    "vercel",
+    "react",
+    "express"
+  ],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
